@@ -1,0 +1,36 @@
+services:
+  jenkins:
+    image: crypto-jenkins:1.0
+    container_name: crypto-jenkins
+    restart: on-failure
+    networks:
+      - crypto-cicd
+    environment:
+      - DOCKER_HOST=tcp://docker:2376
+      - DOCKER_CERT_PATH=/certs/client
+      - DOCKER_TLS_VERIFY=1
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins-data:/var/jenkins_home
+      - jenkins-docker-certs:/certs/client:ro
+  prometheus:
+    image: crypto-prometheus:1.0
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - prometheus-data:/var/prometheus
+    networks:
+      - crypto-cicd
+    restart: unless-stopped
+
+networks:
+  crypto-cicd:
+    external: true
+
+volumes:
+  jenkins-data:
+  jenkins-docker-certs:
+  prometheus-data:
